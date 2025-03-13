@@ -1,0 +1,29 @@
+name: Deploy to Google Cloud Run
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/ai-banking-app
+          gcloud run deploy ai-banking-app \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/ai-banking-app \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated
