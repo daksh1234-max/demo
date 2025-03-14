@@ -1,3 +1,5 @@
+"use client";
+
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '@/store/store';
 import AuthProvider from '@/components/auth/AuthProvider';
@@ -6,7 +8,7 @@ import { ThemeProvider } from 'next-themes';
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ReduxProvider store={store}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class">
         <AuthProvider>{children}</AuthProvider>
       </ThemeProvider>
     </ReduxProvider>
