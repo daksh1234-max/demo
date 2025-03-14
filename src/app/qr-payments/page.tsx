@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import QRScanner from '@/components/qr/QRScanner';
 import QRGenerator from '@/components/qr/QRGenerator';
