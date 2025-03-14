@@ -9,13 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@eslint/config-array": "^0.19.2",
+    "@eslint/object-schema": "^2.1.6",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@reduxjs/toolkit": "^2.6.1",
     "dotenv": "^16.4.7",
     "firebase": "^11.4.0",
     "framer-motion": "^12.5.0",
-    "i18next": "^24.2.2",
+    "glob": "^11.0.1",
+    "i18next": "^24.2.3",
     "jsqr": "^1.4.0",
     "next": "15.2.2",
     "next-auth": "^4.24.11",
@@ -24,18 +27,21 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-i18next": "^15.4.1",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "rimraf": "^6.0.1",
+    "undici": "^5.27.0",
+    "vercel": "^41.4.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@eslint/eslintrc": "^3.3.0",
+    "@tailwindcss/postcss": "^4.0.14",
+    "@types/node": "^22.13.10",
     "@types/qrcode": "^1.5.5",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.22.0",
     "eslint-config-next": "15.2.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.8.2"
   }
 }

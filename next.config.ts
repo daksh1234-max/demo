@@ -1,12 +1,17 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    return config;
+  },
+  experimental: {
+    esmExternals: false, // Ensures compatibility with CommonJS modules
+  },
   eslint: {
-    // This will allow the build to continue even with ESLint errors
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // This will allow the build to continue even with TypeScript errors
     ignoreBuildErrors: true,
   }
 };
