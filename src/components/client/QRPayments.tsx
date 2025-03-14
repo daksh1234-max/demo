@@ -1,99 +1,105 @@
 'use client';
 
 import { useState } from 'react';
-import QRCode from 'qrcode';
-import jsQR from 'jsqr';
+import Image from 'next/image';
+import QRScanner from '@/components/qr/QRScanner';
+import QRGenerator from '@/components/qr/QRGenerator';
 
 interface QRPaymentsProps {
-  onScan?: (data: string) => void;
-  onGenerate?: (data: string) => void;
+  onScan: (data: string | null) => void;
+  onGenerate: (data: string) => void;
 }
 
 export default function QRPayments({ onScan, onGenerate }: QRPaymentsProps) {
   const [mode, setMode] = useState<'scan' | 'generate'>('scan');
-  const [qrData, setQRData] = useState('');
-  const [qrImage, setQRImage] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [paymentData, setPaymentData] = useState<string>('');
 
-  const handleQRScan = async (imageData: ImageData) => {
-    const code = jsQR(imageData.data, imageData.width, imageData.height);
-    if (code) {
-      setQRData(code.data);
-      onScan?.(code.data);
+  const handleModeSwitch = (newMode: 'scan' | 'generate') => {
+    setMode(newMode);
+  };
+
+  const handleScan = (data: string | null) => {
+    if (data) {
+      onScan(data);
     }
   };
 
-  const generateQR = async (data: string) => {
-    try {
-      const url = await QRCode.toDataURL(data);
-      setQRImage(url);
-      onGenerate?.(data);
-    } catch (err) {
-      console.error('Error generating QR code:', err);
+  const handleGenerate = () => {
+    if (paymentData) {
+      onGenerate(paymentData);
     }
   };
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="flex justify-center space-x-4">
+    <div className="space-y-6">
+      <div className="flex space-x-4 justify-center mb-6">
         <button
-          onClick={() => setMode('scan')}
+          onClick={() => handleModeSwitch('scan')}
           className={`px-4 py-2 rounded-lg ${
-            mode === 'scan' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+            mode === 'scan'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
           }`}
         >
-          Scan QR
+          Scan QR Code
         </button>
         <button
-          onClick={() => setMode('generate')}
+          onClick={() => handleModeSwitch('generate')}
           className={`px-4 py-2 rounded-lg ${
-            mode === 'generate' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+            mode === 'generate'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
           }`}
         >
-          Generate QR
+          Generate QR Code
         </button>
       </div>
 
       {mode === 'scan' && (
-        <div className="mt-4">
-          <video
-            id="qr-video"
-            className="w-full rounded-lg"
-            onCanPlay={(e) => {
-              const video = e.target as HTMLVideoElement;
-              const canvas = document.createElement('canvas');
-              const context = canvas.getContext('2d');
-              if (context) {
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                handleQRScan(imageData);
-              }
-            }}
-          />
-          {qrData && (
-            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-              <h3 className="font-semibold mb-2">Scanned Data:</h3>
-              <p className="break-all">{qrData}</p>
-            </div>
-          )}
+        <div className="space-y-4">
+          <QRScanner onScan={handleScan} />
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            Position the QR code within the frame to scan
+          </p>
         </div>
       )}
 
       {mode === 'generate' && (
-        <div className="mt-4">
-          <input
-            type="text"
-            value={qrData}
-            onChange={(e) => {
-              setQRData(e.target.value);
-              generateQR(e.target.value);
-            }}
-            placeholder="Enter data for QR code"
-            className="w-full px-4 py-2 border rounded-lg mb-4"
-          />
-          {qrImage && (
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-4">
+            <input
+              type="text"
+              value={paymentData}
+              onChange={(e) => setPaymentData(e.target.value)}
+              placeholder="Enter payment details"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+            />
+            <button
+              onClick={handleGenerate}
+              className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+            >
+              Generate QR Code
+            </button>
+          </div>
+          
+          {qrCodeUrl && (
             <div className="flex justify-center">
-              <img src={qrImage} alt="Generated QR Code" className="rounded-lg" />
+              <div className="relative w-48 h-48">
+                <Image
+                  src={qrCodeUrl}
+                  alt="Generated QR Code"
+                  width={192}
+                  height={192}
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </div>
+          )}
+          
+          {paymentData && !qrCodeUrl && (
+            <QRGenerator data={paymentData} />
           )}
         </div>
       )}

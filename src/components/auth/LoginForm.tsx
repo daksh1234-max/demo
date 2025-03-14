@@ -8,10 +8,12 @@ import {
   FacebookAuthProvider,
   PhoneAuthProvider,
   RecaptchaVerifier,
-  signInWithCredential
+  signInWithCredential,
+  AuthError
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { setError } from '@/store/slices/authSlice';
+import { FormEvent } from 'react';
 
 declare global {
   interface Window {
@@ -19,7 +21,25 @@ declare global {
   }
 }
 
-export default function LoginForm() {
+interface FormError {
+  message: string;
+  field?: string;
+}
+
+interface LoginFormProps {
+  onSubmit: (email: string, password: string) => Promise<void>;
+}
+
+interface HTMLFormTarget extends EventTarget {
+  email: { value: string };
+  password: { value: string };
+}
+
+interface ExtendedFormEvent extends FormEvent {
+  target: HTMLFormTarget;
+}
+
+export default function LoginForm({ onSubmit }: LoginFormProps) {
   const dispatch = useDispatch();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
@@ -30,8 +50,9 @@ export default function LoginForm() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error: any) {
-      dispatch(setError(error.message));
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      dispatch(setError(authError.message));
     }
   };
 
@@ -39,8 +60,9 @@ export default function LoginForm() {
     try {
       const provider = new FacebookAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error: any) {
-      dispatch(setError(error.message));
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      dispatch(setError(authError.message));
     }
   };
 
@@ -64,8 +86,9 @@ export default function LoginForm() {
       );
       setVerificationId(verificationId);
       setIsVerifying(true);
-    } catch (error: any) {
-      dispatch(setError(error.message));
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      dispatch(setError(authError.message));
     }
   };
 
@@ -73,9 +96,17 @@ export default function LoginForm() {
     try {
       const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
       await signInWithCredential(auth, credential);
-    } catch (error: any) {
-      dispatch(setError(error.message));
+    } catch (error: unknown) {
+      const authError = error as AuthError;
+      dispatch(setError(authError.message));
     }
+  };
+
+  const handleSubmit = (e: ExtendedFormEvent) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    onSubmit(email, password);
   };
 
   return (
